@@ -4,7 +4,7 @@ Donate link: http://www.dogonews.com/
 Tags: DOGO Media, DOGOnews, DOGObooks, DOGOmovies, current events, news, books, movies, reviews, kids, children, rss, atom, feed
 Requires at least: 2.8.4
 Tested up to: 3.4.2
-Stable tag: trunk
+Stable tag: 1.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
