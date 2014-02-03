@@ -4,7 +4,7 @@ Plugin Name: DOGO Content Widget
 Plugin URI: http://www.dogonews.com
 Description: This plug-in displays the latest content from DOGO websites:  Expose students to current events from DOGOnews.com, the leading source of content for Common Core State Standards ELA, science and social studies.  Share latest book reviews from DOGObooks.com, where kids review and rate books.  And for some fun, share movie reviews by kids from DOGOmovies.com.
 Author: DOGO Media Inc.
-Version: 1.1
+Version: 1.2
 Author URI: http://www.dogonews.com
 
 /* License
@@ -385,5 +385,251 @@ add_action( 'widgets_init', create_function('', 'return register_widget("DOGOboo
 add_action( 'widgets_init', create_function('', 'return register_widget("DOGOmovies_RSS_Widget");') );
 
 add_filter( 'wp_feed_cache_transient_lifetime', create_function('$a', 'return 600;') );
+
+class DOGOMediaEditorPlugin {
+
+	/*--------------------------------------------*
+	 * Constants
+	 *--------------------------------------------*/
+	const name = 'DOGO Media Editor Plugin';
+	const slug = 'dogo_media_editor_plugin';
+
+	/**
+	 * Constructor
+	 */
+	function __construct() {
+		//register an activation hook for the plugin
+		register_activation_hook( __FILE__, array( &$this, 'install_dogo_media_editor_plugin' ) );
+
+		//Hook up to the init action
+		add_action( 'init', array( &$this, 'init_dogo_media_editor_plugin' ) );
+	}
+
+	/**
+	 * Runs when the plugin is activated
+	 */
+	function install_dogo_media_editor_plugin() {
+		// do not generate any output here
+	}
+
+	/**
+	 * Runs when the plugin is initialized
+	 */
+	function init_dogo_media_editor_plugin() {
+		// Setup localization
+		load_plugin_textdomain( self::slug, false, dirname( plugin_basename( __FILE__ ) ) . '/lang' );
+		// Load JavaScript and stylesheets
+		$this->register_scripts_and_styles();
+
+
+		if ( is_admin() ) {
+			//this will run when in the WordPress admin
+		} else {
+			//this will run when on the frontend
+		}
+
+		/*
+		 * TODO: Define custom functionality for your plugin here
+		 *
+		 * For more information:
+		 * http://codex.wordpress.org/Plugin_API#Hooks.2C_Actions_and_Filters
+		 */
+        add_action( 'media_buttons', array( &$this, 'dogonews_media_buttons' ) );
+        add_action( 'admin_footer',  array( &$this, 'add_dogo_inline_popup_content' ) );
+    }
+
+    /**
+     * Custom Button to Add DOGOnews Content
+     */
+    function dogonews_media_buttons($editor_id = 'content') {
+        $post = get_post();
+        if ( ! $post && ! empty( $GLOBALS['post_ID'] ) )
+            $post = $GLOBALS['post_ID'];
+
+        wp_enqueue_media( array(
+            'post' => $post
+        ) );
+
+        $img = '<span class="dogonews_media"><img src="//cdn.dogonews.com/assets/icon/dogo-16.png"/></span> ';
+
+        echo '<a href="#TB_inline?width=600&height=500&inlineId=dogo_popup_container&width=600&height=500" id="insert-media-button-dogonews-media" class="button thickbox add_dogonews_media" data-editor="' . esc_attr( $editor_id ) . '" title="' . esc_attr__( 'Add DOGO Media' ) . '">' . $img . __( 'Add DOGO Media' ) . '</a>';
+    }
+
+    /**
+     * Custom Inline Popup Content
+     */
+    function add_dogo_inline_popup_content() {
+        ?>
+        <div id="dogo_popup_container" style="display:none">
+            <div id="rootApp" ng-controller="SearchCtl">
+                <div id="dogo_search_header">
+                    <nav class="navbar navbar-default" role="navigation">
+                        <div class="navbar-header">
+                            <a ng-if="isTabActive('news')" class="navbar-brand" href="//www.dogonews.com">
+                                <img alt="DOGOnews" class="logo_small" src="//cdn.dogomedia.com/assets/dogonews-0b7d00fbf412cbc0d642fde3d69cdda1.png">
+                            </a>
+                            <a ng-if="isTabActive('books')" class="navbar-brand" href="//www.dogonews.com">
+                                <img alt="DOGObooks" class="logo_small" src="//cdn.dogomedia.com/assets/dogobooks.png">
+                            </a>
+                            <a ng-if="isTabActive('movies')" class="navbar-brand" href="//www.dogonews.com">
+                                <img alt="DOGOmovies" class="logo_small" src="//cdn.dogomedia.com/assets/dogomovies.png">
+                            </a>
+                        </div>
+                        <ul class="nav navbar-nav">
+                            <li ng-class="getActiveTabClass('news')">
+                                <a href="#" ng-click="changeApiRoot('news')">News</a>
+                            </li>
+                            <li ng-class="getActiveTabClass('books')">
+                                <a href="#" ng-click="changeApiRoot('books')">Books</a>
+                            </li>
+                            <li ng-class="getActiveTabClass('movies')">
+                                <a href="#" ng-click="changeApiRoot('movies')">Movies</a>
+                            </li>
+                        </ul>
+                    </nav>
+
+                    <h2 ng-if="isTabActive('news')">Find Current Events</h2>
+                    <h2 ng-if="isTabActive('books')">Find Book Reviews</h2>
+                    <h2 ng-if="isTabActive('movies')">Find Movie Reviews</h2>
+
+                    <div id="categories">
+                        <div ng-if="isTabActive('news')">
+                            <a class="category category-latest" href="#" ng-click="doCategorySearch(null)">Current Events</a>
+                            <a class="category category-science" href="#" ng-click="doCategorySearch('science')">Science</a>
+                            <a class="category category-sports" href="#" ng-click="doCategorySearch('sports')">Sports</a>
+                            <a class="category category-social-studies" href="#" ng-click="doCategorySearch('social-studies')">Social studies</a>
+                            <a class="category category-did-you-know" href="#" ng-click="doCategorySearch('did-you-know')">Did you know</a>
+                            <a class="category category-green" href="#" ng-click="doCategorySearch('green')">Green</a>
+                            <br/>
+                            <a class="category category-general" href="#" ng-click="doCategorySearch('general')">General</a>
+                            <a class="category category-entertainment" href="#" ng-click="doCategorySearch('entertainment')">Entertainment</a>
+                            <a class="category category-international" href="#" ng-click="doCategorySearch('international')">International</a>
+                            <a class="category category-amazing" href="#" ng-click="doCategorySearch('amazing')">Amazing</a>
+                            <a class="category category-fun" href="#" ng-click="doCategorySearch('fun')">Fun</a>
+                            <a class="category category-video" href="#" ng-click="doCategorySearch('video-gallery')">Video</a>
+                        </div>
+                        <div ng-if="isTabActive('books')">
+                            <a class="genre latest" href="#" ng-click="doCategorySearch(null)">Latest</a>
+                            <a class="genre science-fiction" href="#" ng-click="doCategorySearch('science-fiction')">Science Fiction</a></li>
+                            <a class="genre adventure" href="#" ng-click="doCategorySearch('adventure')">Adventure</a></li>
+                            <a class="genre biography" href="#" ng-click="doCategorySearch('biography')">Biography</a></li>
+                            <a class="genre non-fiction" href="#" ng-click="doCategorySearch('non-fiction')">Non-Fiction</a></li>
+                            <a class="genre fiction" href="#" ng-click="doCategorySearch('fiction')">Fiction</a></li>
+                            <a class="genre mystery" href="#" ng-click="doCategorySearch('mystery')">Mystery</a></li>
+                            <a class="genre poetry" href="#" ng-click="doCategorySearch('poetry')">Poetry</a></li>
+                        </div>
+                        <div ng-if="isTabActive('movies')">
+                        </div>
+                    </div>
+
+                    <form id="search" class="clearfix">
+                        <div class="input-group">
+                            <input class="form-control" ng-model="search.queryString" placeholder="Search" type="text" />
+                            <span class="input-group-btn">
+                                <button class="btn-default btn" ng-click="doSearch()" type="submit">Search</button>
+                            </span>
+                        </div>
+                    </form>
+
+                </div>
+                <div id="dogo_search_results">
+                    <div class="scroll-container" infinite-scroll="loadMorePosts()" infinite-scroll-disabled="loading" infinite-scroll-distance="1">
+                        <p class="no-articles" ng-if="posts && posts.length == 0">
+                            <span ng-if="isTabActive('news')">
+                                No articles were found.
+                            </span>
+                            <span ng-if="isTabActive('books')">
+                                No books were found.
+                            </span>
+                            <span ng-if="isTabActive('movies')">
+                                No movies were found.
+                            </span>
+                        </p>
+
+                        <table class="table table-striped table-condensed ng-cloak" ng-cloak="ng-cloak" ng-show="posts && 0 < posts.length">
+                            <tbody>
+                                <tr ng-repeat="post in posts">
+                                    <td>
+                                        <div class="media">
+                                            <div class="pull-left">
+                                                <img class="media-object" ng-src="{{post.thumb}}"/>
+                                            </div>
+                                            <div class="media-body">
+                                                <h4 class="media-heading">{{post.name}}</h4>
+                                                <span ng-bind-html-unsafe="post.summary"></span>
+                                                <a ng-click="insertEmbedCode(post)" class="button media-button button-primary media-button-insert">Insert into Post</a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <?php
+    }
+
+	/**
+	 * Registers and enqueues stylesheets for the administration panel and the
+	 * public facing site.
+	 */
+	private function register_scripts_and_styles() {
+		if ( is_admin() ) {
+			$this->load_file( self::slug . '-admin-script', '/js/admin.js', true );
+			$this->load_file( self::slug . '-admin-style', '/css/admin.css' );
+
+            wp_register_style( 'bootstrap-css', '//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css' );
+            wp_enqueue_style( 'bootstrap-css' );
+
+            wp_register_style( 'edublogs-css', '//cdn.dogonews.com/assets/edublogs-d7ac2a0f102411e0007f4dadf397cea5.css' );
+            wp_enqueue_style( 'edublogs-css' );
+
+            wp_register_script( 'jquery-js', '//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js' );
+            wp_enqueue_script( 'jquery-js' );
+
+            wp_register_script( 'angularjs-js', '//ajax.googleapis.com/ajax/libs/angularjs/1.2.9/angular.min.js' );
+            wp_enqueue_script( 'angularjs-js' );
+
+            wp_register_script( 'bootstrap-js', '//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js' );
+            wp_enqueue_script( 'bootstrap-js' );
+
+            wp_register_script( 'edublogs-js', '//cdn.dogonews.com/assets/edublogs-1ea91d5c2518a31552a055fc42840c5a.js' );
+            wp_enqueue_script( 'edublogs-js' );
+
+		} else {
+			$this->load_file( self::slug . '-script', '/js/widget.js', true );
+			$this->load_file( self::slug . '-style', '/css/widget.css' );
+		} // end if/else
+	} // end register_scripts_and_styles
+
+	/**
+	 * Helper function for registering and enqueueing scripts and styles.
+	 *
+	 * @name	The 	ID to register with WordPress
+	 * @file_path		The path to the actual file
+	 * @is_script		Optional argument for if the incoming file_path is a JavaScript source file.
+	 */
+	private function load_file( $name, $file_path, $is_script = false ) {
+
+		$url = plugins_url($file_path, __FILE__);
+		$file = plugin_dir_path(__FILE__) . $file_path;
+
+		if( file_exists( $file ) ) {
+			if( $is_script ) {
+				wp_register_script( $name, $url, array('jquery') ); //depends on jquery
+				wp_enqueue_script( $name );
+			} else {
+				wp_register_style( $name, $url );
+				wp_enqueue_style( $name );
+			} // end if
+		} // end if
+
+	} // end load_file
+
+} // end class
+new DOGOMediaEditorPlugin();
 
 ?>
