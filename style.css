@@ -1,0 +1,22 @@
+.dogo-logo{display:block;text-align:center;margin:10px auto 0}
+.dogo-logo img{margin-right:2px}
+
+/* Clearfix from Bootstrap */
+.clearfix{*zoom:1}.clearfix:before,.clearfix:after{display:table;content:"";line-height:0}.clearfix:after{clear:both}
+
+/* Dogo Widget */
+.dogoRecommendationWidgetContent .pas{padding:5px}
+.dogoRecommendationWidgetContent .rankContainer{width:10px;padding:5px 5px 0 0}
+.dogoRecommendationWidgetContent .rankContainer span.number{font-weight:700}
+.dogoRecommendationWidgetContent .dogoImageContainer{overflow:hidden}
+.dogoRecommendationWidgetContent .cls29h .img,.dogoRecommendationWidgetContent img.cls29h,.dogoRecommendationWidgetContent i.cls29h{display:block}
+.dogoRecommendationWidgetContent .cls29k{display:table-cell;vertical-align:top;width:10000px}
+.dogoRecommendationWidgetContent .recommendations_metadata{padding-top:3px;color:gray;word-wrap:break-word;}
+.dogoWidget-horizontal .cls303{margin-right:8px}
+.dogoWidget-horizontal .cls29h{float:left;margin-right:5px}
+.dogoWidget-horizontal .dogoImageContainer img.img{width:60px;}
+.dogoWidget-vertical{text-align:center}
+.dogoWidget-vertical .dogoImageContainer img.img{margin:0 auto 3px auto}
+
+/*NailThumb Styles*/
+.nailthumb-container{width:auto;height:auto;margin:0 0 11px;padding:0;overflow:hidden;text-align:left}.nailthumb-container img.nailthumb-image{margin:0;padding:0;max-width:none;text-align:left;float:left}.nailthumb-container span.nailthumb-title{background:none repeat scroll 0 0 rgba(0,0,0,0.5);bottom:0;color:White;display:block;font-size:9px;height:20px;left:0;margin-top:2px;line-height:20px;position:relative;text-align:center;width:100%;overflow:hidden;float:left}.nailthumb-container span.nailthumb-title .nailthumb-title-scroller{padding-left:2px}.nailthumb-container img{max-width:none;text-align:left}
